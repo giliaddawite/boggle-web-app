@@ -33,6 +33,12 @@ export function generateBoard(size: number = 4): Board {
 		}
 		b.push(row)
 	}
+	// Verify board was generated correctly
+	if (b.length !== n || b.some(row => row.length !== n)) {
+		console.error('Board generation failed!', { expected: n, got: b.length, rows: b.map(r => r.length) })
+		// Regenerate if there's an issue
+		return generateBoard(size)
+	}
 	return b
 }
 
@@ -53,7 +59,7 @@ export function findAllBoardWords(board: Board, trie: Trie): string[] {
 	function dfs(r: number, c: number, node: Trie, path: string) {
 		const k = key(r, c)
 		if (seen.has(k)) return
-		const ch = board[r][c]
+		const ch = board[r][c].toLowerCase() // Convert to lowercase to match trie
 		const next = node.children.get(ch)
 		if (!next) return
 		const word = path + ch
