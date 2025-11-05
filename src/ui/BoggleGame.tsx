@@ -304,18 +304,64 @@ export function BoggleGame({ user }: BoggleGameProps) {
 
 	const submitScore = async (score: number, words: string[]) => {
 		try {
+			// Client-side validation before submission
+			if (!currentChallenge || !user) {
+				console.error('Cannot submit score: missing challenge or user')
+				return
+			}
+			
+			// Validate score matches words length
+			if (score !== words.length) {
+				console.error('Score validation failed: score does not match words length', { score, wordsLength: words.length })
+				return
+			}
+			
+			// Validate score is within reasonable bounds
+			if (score < 0 || score > 1000) {
+				console.error('Score validation failed: score out of bounds', { score })
+				return
+			}
+			
+			// Validate words are strings and within reasonable length
+			const validWords = words.filter(w => {
+				if (typeof w !== 'string') return false
+				const trimmed = w.trim().toLowerCase()
+				return trimmed.length >= 3 && trimmed.length <= 20
+			})
+			
+			if (validWords.length !== words.length) {
+				console.error('Score validation failed: invalid words in array', { words, validWords })
+				return
+			}
+			
+			// Validate words are actually in the challenge solutions (client-side check)
+			const validWordsInSolutions = validWords.filter(w => {
+				const normalized = normalizeWord(w)
+				return allWords.includes(normalized)
+			})
+			
+			if (validWordsInSolutions.length !== words.length) {
+				console.error('Score validation failed: words not in solutions', { 
+					words, 
+					validWordsInSolutions,
+					allWordsSample: allWords.slice(0, 10)
+				})
+				return
+			}
+			
+			// All validation passed - submit score
 			await addDoc(collection(db, 'scores'), {
-				challengeId: currentChallenge!.id,
-				userId: user!.uid,
-				userName: user!.displayName,
-				userPhoto: user!.photoURL,
-				score: score,
-				wordsFound: words,
+				challengeId: currentChallenge.id,
+				userId: user.uid,
+				userName: user.displayName || 'Anonymous',
+				userPhoto: user.photoURL || null,
+				score: validWordsInSolutions.length,
+				wordsFound: validWordsInSolutions,
 				timestamp: new Date()
 			})
 			
 			// Check rank change after submitting score
-			await checkRankChange(currentChallenge!.id, user!.uid)
+			await checkRankChange(currentChallenge.id, user.uid)
 		} catch (error) {
 			console.error('Error submitting score:', error)
 		}
