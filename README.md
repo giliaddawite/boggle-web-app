@@ -1,6 +1,6 @@
 # Boggle Challenge Game
 
-A competitive Boggle word game where players can take on timed challenges, compete on leaderboards, and track their progress. Built with React, Vite, TypeScript, and Firebase. Live Demo
+A competitive Boggle word game where players can take on timed challenges, compete on leaderboards, and track their progress. Built with React, Vite, TypeScript, and Firebase. **[Live Demo](https://boggle-solver-c3740.web.app)**
 
 ## Project Description
 
