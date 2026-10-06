@@ -86,8 +86,8 @@ Or visit: `https://boggle-solver-c3740.firebaseapp.com`
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd boggle_swe
+   git clone https://github.com/giliaddawite/boggle-web-app.git
+   cd boggle-web-app
    ```
 
 2. **Install dependencies**
@@ -140,6 +140,7 @@ firebase deploy
 - `src/test/`: Test setup and configuration
 - `src/components/__tests__/`: Component test files
 - `src/utils/__tests__/`: Utility function test files
+- `docs/`: Project notes (see `docs/security.md` for the Firestore security model)
 
 ## Tech Stack
 
@@ -156,6 +157,7 @@ firebase deploy
 - Board generation uses weighted letter distribution (skewed toward vowels)
 - Q is displayed as single letter (not QU) - word finding handles Q+U combinations correctly
 - Normalizes words to lowercase for case-insensitive matching
+- The word list is a hand-maintained array of about 1,750 common words in `src/utils/dictionary.ts`, so some valid English words are not accepted. Swapping in a full word list (for example `words_alpha.txt` from github.com/dwyl/english-words) is the fix if that matters to you
 
 ### Data Management
 - Challenge data needs to be manually populated in Firestore's `challenges` collection
@@ -168,3 +170,7 @@ firebase deploy
 - Hosted on Firebase Hosting
 - Firestore used for challenge storage and leaderboard data
 - Firebase Auth for Google Sign-In integration
+
+### Security
+- Firestore rules only allow a signed-in user to write scores under their own `userId`, with type and bounds checks on every field; challenges are read-only from the client
+- Score validation is client-side only. See `docs/security.md` for what that does and does not protect against
